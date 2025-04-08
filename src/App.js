@@ -7,6 +7,8 @@ const SPORTS = [
   'soccer_spain_la_liga',
   'soccer_germany_bundesliga',
   'soccer_italy_serie_a',
+  'soccer_netherlands_eredivisie',
+  'soccer_portugal_primeira_liga',
   'soccer_france_ligue_one'
 ];
 const REGIONS = 'uk';
