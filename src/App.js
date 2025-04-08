@@ -12,10 +12,15 @@ const SPORTS = [
 const REGIONS = 'uk';
 const MARKETS = 'h2h';
 const ODDS_RANGE = [1.3, 1.6];
+const initialBalance = 1000; // Starting balance (₦1,000)
 
 function App() {
   const [bets, setBets] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [balance, setBalance] = useState(initialBalance); // User's current balance
+  const [stakePercentage, setStakePercentage] = useState(5); // Bet percentage
+  const [stakeAmount, setStakeAmount] = useState(0);
+  const [sortBy, setSortBy] = useState('time'); // Default sorting by time
 
   const fetchOddsForSport = async (sportKey) => {
     const response = await axios.get(`https://api.the-odds-api.com/v4/sports/${sportKey}/odds`, {
@@ -65,6 +70,25 @@ function App() {
     }
   };
 
+  // Calculate stake based on balance and stake percentage
+  useEffect(() => {
+    const calculatedStake = (balance * stakePercentage) / 100;
+    setStakeAmount(calculatedStake.toFixed(2)); // Round to 2 decimal places
+  }, [balance, stakePercentage]);
+
+  // Sort bets based on time or odds
+  const sortBets = () => {
+    let sortedBets = [...bets];
+
+    if (sortBy === 'time') {
+      sortedBets.sort((a, b) => a.commence_time - b.commence_time); // Sort by time ascending
+    } else if (sortBy === 'odds') {
+      sortedBets.sort((a, b) => a.odds - b.odds); // Sort by odds ascending
+    }
+
+    return sortedBets;
+  };
+
   useEffect(() => {
     fetchAllOdds();
   }, []);
@@ -75,9 +99,33 @@ function App() {
       <button onClick={fetchAllOdds} disabled={loading}>
         {loading ? 'Refreshing...' : 'Refresh Matches'}
       </button>
+
       <div style={{ marginTop: '1rem' }}>
-        {bets.length > 0 ? (
-          bets.map((bet, idx) => (
+        <h2>💰 Current Balance: ₦{balance}</h2>
+        <h3>📊 Stake per Bet: ₦{stakeAmount}</h3>
+
+        <label>
+          Set Stake Percentage (%):
+          <input
+            type="number"
+            value={stakePercentage}
+            onChange={(e) => setStakePercentage(e.target.value)}
+            min="1"
+            max="100"
+            style={{ marginLeft: '1rem' }}
+          />
+        </label>
+      </div>
+
+      <div style={{ marginTop: '1rem' }}>
+        <h3>🔄 Sort Matches By:</h3>
+        <button onClick={() => setSortBy('time')}>Time</button>
+        <button onClick={() => setSortBy('odds')}>Odds</button>
+      </div>
+
+      <div style={{ marginTop: '1rem' }}>
+        {sortBets().length > 0 ? (
+          sortBets().map((bet, idx) => (
             <div key={idx} style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem' }}>
               <h2>{bet.matchup}</h2>
               <p><strong>League:</strong> {bet.league}</p>
@@ -85,6 +133,7 @@ function App() {
               <p><strong>Odds:</strong> {bet.odds}</p>
               <p><strong>Bookmaker:</strong> {bet.bookmaker}</p>
               <p><strong>Kickoff:</strong> {new Date(bet.commence_time).toLocaleString()}</p>
+              <p><strong>Suggested Stake:</strong> ₦{stakeAmount}</p>
             </div>
           ))
         ) : (
