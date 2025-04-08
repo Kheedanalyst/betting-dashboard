@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 const SPORTS = [
@@ -7,8 +9,6 @@ const SPORTS = [
   'soccer_spain_la_liga',
   'soccer_germany_bundesliga',
   'soccer_italy_serie_a',
-  'soccer_netherlands_eredivisie',
-  'soccer_portugal_primeira_liga',
   'soccer_france_ligue_one'
 ];
 const REGIONS = 'uk';
@@ -23,6 +23,8 @@ function App() {
   const [stakePercentage, setStakePercentage] = useState(5); // Bet percentage
   const [stakeAmount, setStakeAmount] = useState(0);
   const [sortBy, setSortBy] = useState('time'); // Default sorting by time
+  const [startDate, setStartDate] = useState(new Date()); // Start date for filter
+  const [endDate, setEndDate] = useState(new Date()); // End date for filter
 
   const fetchOddsForSport = async (sportKey) => {
     const response = await axios.get(`https://api.the-odds-api.com/v4/sports/${sportKey}/odds`, {
@@ -78,6 +80,14 @@ function App() {
     setStakeAmount(calculatedStake.toFixed(2)); // Round to 2 decimal places
   }, [balance, stakePercentage]);
 
+  // Filter bets based on the selected date range
+  const filterByDateRange = (bets) => {
+    return bets.filter((bet) => {
+      const matchDate = new Date(bet.commence_time * 1000); // Convert to milliseconds
+      return matchDate >= startDate && matchDate <= endDate;
+    });
+  };
+
   // Sort bets based on time or odds
   const sortBets = () => {
     let sortedBets = [...bets];
@@ -88,7 +98,7 @@ function App() {
       sortedBets.sort((a, b) => a.odds - b.odds); // Sort by odds ascending
     }
 
-    return sortedBets;
+    return filterByDateRange(sortedBets);
   };
 
   useEffect(() => {
@@ -125,6 +135,36 @@ function App() {
         <button onClick={() => setSortBy('odds')}>Odds</button>
       </div>
 
+      <div style={{ marginTop: '2rem' }}>
+        <h3>📅 Filter Matches by Date Range:</h3>
+        <div>
+          <label>Start Date: </label>
+          <DatePicker
+            selected={startDate}
+            onChange={(date) => setStartDate(date)}
+            dateFormat="MMMM d, yyyy"
+            selectsStart
+            startDate={startDate}
+            endDate={endDate}
+            inline
+          />
+        </div>
+
+        <div>
+          <label>End Date: </label>
+          <DatePicker
+            selected={endDate}
+            onChange={(date) => setEndDate(date)}
+            dateFormat="MMMM d, yyyy"
+            selectsEnd
+            startDate={startDate}
+            endDate={endDate}
+            minDate={startDate}
+            inline
+          />
+        </div>
+      </div>
+
       <div style={{ marginTop: '1rem' }}>
         {sortBets().length > 0 ? (
           sortBets().map((bet, idx) => (
@@ -134,12 +174,12 @@ function App() {
               <p><strong>Team:</strong> {bet.team}</p>
               <p><strong>Odds:</strong> {bet.odds}</p>
               <p><strong>Bookmaker:</strong> {bet.bookmaker}</p>
-              <p><strong>Kickoff:</strong> {new Date(bet.commence_time).toLocaleString()}</p>
+              <p><strong>Kickoff:</strong> {new Date(bet.commence_time * 1000).toLocaleString()}</p>
               <p><strong>Suggested Stake:</strong> ₦{stakeAmount}</p>
             </div>
           ))
         ) : (
-          <p>No matches found in the safe odds range.</p>
+          <p>No matches found in the selected date range.</p>
         )}
       </div>
     </div>
