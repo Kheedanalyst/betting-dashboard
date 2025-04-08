@@ -4,13 +4,13 @@ import './styles.css'; // Import styles
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 const SPORTS = [
-  'soccer_epl',
-  'soccer_spain_la_liga',
-  'soccer_germany_bundesliga',
-  'soccer_italy_serie_a',
-  'soccer_netherlands_eredivisie',
-  'soccer_portugal_primeira_liga',
-  'soccer_france_ligue_one'
+  { key: 'soccer_epl', name: 'English Premier League' },
+  { key: 'soccer_spain_la_liga', name: 'La Liga' },
+  { key: 'soccer_germany_bundesliga', name: 'Bundesliga' },
+  { key: 'soccer_italy_serie_a', name: 'Serie A' },
+  { key: 'soccer_netherlands_eredivisie', name: 'Eredivisie' },
+  { key: 'soccer_portugal_primeira_liga', name: 'Primeira Liga' },
+  { key: 'soccer_france_ligue_one', name: 'Ligue 1' }
 ];
 const REGIONS = 'uk';
 const MARKETS = 'h2h';
@@ -44,8 +44,8 @@ function App() {
     try {
       let allBets = [];
 
-      for (const sportKey of SPORTS) {
-        const data = await fetchOddsForSport(sportKey);
+      for (const sport of SPORTS) {
+        const data = await fetchOddsForSport(sport.key);
 
         data.forEach((game) => {
           game.bookmakers.forEach((bookmaker) => {
@@ -57,7 +57,7 @@ function App() {
                     team: outcome.name,
                     odds: outcome.price,
                     bookmaker: bookmaker.title,
-                    league: game.sport_title, // Use the actual league title from the API
+                    league: sport.name, // Use the human-readable league name
                     commence_time: game.commence_time
                   });
                 }
@@ -140,13 +140,9 @@ function App() {
         <h3>🏆 Filter Matches By League:</h3>
         <select onChange={(e) => setSelectedLeague(e.target.value)} value={selectedLeague}>
           <option value="">All Leagues</option>
-          <option value="English Premier League">English Premier League</option>
-          <option value="La Liga">La Liga</option>
-          <option value="Serie A">Serie A</option>
-          <option value="Bundesliga">Bundesliga</option>
-          <option value="Eredivisie">Eredivisie</option>
-          <option value="Primeira Liga">Primeira Liga</option>
-          <option value="Ligue 1">Ligue 1</option>
+          {SPORTS.map(sport => (
+            <option key={sport.key} value={sport.name}>{sport.name}</option>
+          ))}
         </select>
       </div>
 
