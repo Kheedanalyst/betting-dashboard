@@ -1,0 +1,124 @@
+/* styles.css */
+
+/* Global styles */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f9;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.App {
+  width: 80%;
+  max-width: 1200px;
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  color: #333;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* Button styling */
+button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+button:focus {
+  outline: none;
+}
+
+/* Form and input styling */
+label {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+input[type="number"] {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  margin-left: 1rem;
+  margin-bottom: 1rem;
+  width: 60px;
+}
+
+h2, h3 {
+  color: #555;
+  font-size: 1.5rem;
+  margin-top: 1rem;
+}
+
+h3 {
+  margin-top: 2rem;
+  font-size: 1.3rem;
+}
+
+div.match {
+  border: 1px solid #ccc;
+  padding: 1.2rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  background-color: #fafafa;
+}
+
+div.match h2 {
+  color: #333;
+  font-size: 1.5rem;
+}
+
+div.match p {
+  font-size: 1.1rem;
+  color: #555;
+  margin: 0.5rem 0;
+}
+
+div.match p strong {
+  color: #333;
+}
+
+div.match button {
+  background-color: #007bff;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+div.match button:hover {
+  background-color: #0056b3;
+}
+
+.match-details {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  color: #555;
+}
