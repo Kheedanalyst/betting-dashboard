@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './styles.css'; // Import styles
 
-const API_KEY = '2cbf429d440bf1a456424cadfa185b51';
+const API_KEY = process.env.REACT_APP_API_KEY;
 const SPORTS = [
   'soccer_epl',
   'soccer_spain_la_liga',
@@ -20,12 +20,12 @@ const initialBalance = 1000; // Starting balance (₦1,000)
 function App() {
   const [bets, setBets] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [balance, setBalance] = useState(initialBalance);
-  const [stakePercentage, setStakePercentage] = useState(5);
+  const [balance, setBalance] = useState(initialBalance); // User's current balance
+  const [stakePercentage, setStakePercentage] = useState(5); // Bet percentage
   const [stakeAmount, setStakeAmount] = useState(0);
-  const [sortBy, setSortBy] = useState('time');
-  const [darkMode, setDarkMode] = useState(false);
-  const [selectedLeague, setSelectedLeague] = useState('all');
+  const [sortBy, setSortBy] = useState('time'); // Default sorting by time
+  const [darkMode, setDarkMode] = useState(false); // Dark mode state
+  const [selectedLeague, setSelectedLeague] = useState(''); // Selected league for filtering
 
   const fetchOddsForSport = async (sportKey) => {
     const response = await axios.get(`https://api.the-odds-api.com/v4/sports/${sportKey}/odds`, {
@@ -75,41 +75,40 @@ function App() {
     }
   };
 
+  // Calculate stake based on balance and stake percentage
   useEffect(() => {
     const calculatedStake = (balance * stakePercentage) / 100;
-    setStakeAmount(calculatedStake.toFixed(2));
+    setStakeAmount(calculatedStake.toFixed(2)); // Round to 2 decimal places
   }, [balance, stakePercentage]);
 
+  // Sort bets based on time, odds, or bookmaker
   const sortBets = () => {
     let sortedBets = [...bets];
 
     if (sortBy === 'time') {
-      sortedBets.sort((a, b) => new Date(a.commence_time) - new Date(b.commence_time));
+      sortedBets.sort((a, b) => a.commence_time - b.commence_time); // Sort by time ascending
     } else if (sortBy === 'odds') {
-      sortedBets.sort((a, b) => a.odds - b.odds);
+      sortedBets.sort((a, b) => a.odds - b.odds); // Sort by odds ascending
+    } else if (sortBy === 'bookmaker') {
+      sortedBets.sort((a, b) => a.bookmaker.localeCompare(b.bookmaker)); // Sort by bookmaker name
     }
 
-    if (selectedLeague !== 'all') {
+    // Filter by selected league
+    if (selectedLeague) {
       sortedBets = sortedBets.filter(bet => bet.league === selectedLeague);
     }
 
     return sortedBets;
   };
 
-  const toggleDarkMode = () => {
-    setDarkMode(prev => !prev);
-    document.body.className = darkMode ? '' : 'dark';
-  };
-
   useEffect(() => {
     fetchAllOdds();
   }, []);
 
-  const uniqueLeagues = [...new Set(bets.map(bet => bet.league))];
-
   return (
-    <div className={`App ${darkMode ? 'dark-mode' : ''}`}>
+    <div className={`App ${darkMode ? 'dark' : ''}`}>
       <h1>🧠 Smart Odds Betting Dashboard</h1>
+      
       <button onClick={fetchAllOdds} disabled={loading}>
         {loading ? 'Refreshing...' : 'Refresh Matches'}
       </button>
@@ -131,30 +130,36 @@ function App() {
       </div>
 
       <div>
-        <h3>🎨 Appearance:</h3>
-        <button onClick={toggleDarkMode}>{darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}</button>
-      </div>
-
-      <div>
         <h3>🔄 Sort Matches By:</h3>
         <button onClick={() => setSortBy('time')}>Time</button>
         <button onClick={() => setSortBy('odds')}>Odds</button>
+        <button onClick={() => setSortBy('bookmaker')}>Bookmaker</button>
       </div>
 
       <div>
-        <h3>⚽ Filter by League:</h3>
+        <h3>🏆 Filter Matches By League:</h3>
         <select onChange={(e) => setSelectedLeague(e.target.value)} value={selectedLeague}>
-          <option value="all">All Leagues</option>
-          {uniqueLeagues.map((league, idx) => (
-            <option key={idx} value={league}>{league}</option>
-          ))}
+          <option value="">All Leagues</option>
+          <option value="English Premier League">English Premier League</option>
+          <option value="La Liga">La Liga</option>
+          <option value="Serie A">Serie A</option>
+          <option value="Bundesliga">Bundesliga</option>
+          <option value="Eredivisie">Eredivisie</option>
+          <option value="Primeira Liga">Primeira Liga</option>
+          <option value="Ligue 1">Ligue 1</option>
         </select>
+      </div>
+
+      <div>
+        <button onClick={() => setDarkMode(!darkMode)}>
+          {darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        </button>
       </div>
 
       <div>
         {sortBets().length > 0 ? (
           sortBets().map((bet, idx) => (
-            <div key={idx} className="match match-card">
+            <div key={idx} className="match">
               <h2>{bet.matchup}</h2>
               <p><strong>League:</strong> {bet.league}</p>
               <p><strong>Team:</strong> {bet.team}</p>
