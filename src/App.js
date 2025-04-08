@@ -57,7 +57,7 @@ function App() {
                     team: outcome.name,
                     odds: outcome.price,
                     bookmaker: bookmaker.title,
-                    league: game.sport_title,
+                    league: game.sport_title, // Use the actual league title from the API
                     commence_time: game.commence_time
                   });
                 }
@@ -93,7 +93,7 @@ function App() {
       sortedBets.sort((a, b) => a.bookmaker.localeCompare(b.bookmaker)); // Sort by bookmaker name
     }
 
-    // Filter by selected league
+    // Filter by selected league (if any)
     if (selectedLeague) {
       sortedBets = sortedBets.filter(bet => bet.league === selectedLeague);
     }
