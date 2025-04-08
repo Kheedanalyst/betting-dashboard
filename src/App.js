@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 const SPORTS = [
@@ -23,6 +25,8 @@ function App() {
   const [stakePercentage, setStakePercentage] = useState(5); // Bet percentage
   const [stakeAmount, setStakeAmount] = useState(0);
   const [sortBy, setSortBy] = useState('time'); // Default sorting by time
+  const [startDate, setStartDate] = useState(new Date()); // Start date for filter
+  const [endDate, setEndDate] = useState(new Date()); // End date for filter
 
   const fetchOddsForSport = async (sportKey) => {
     const response = await axios.get(`https://api.the-odds-api.com/v4/sports/${sportKey}/odds`, {
@@ -78,12 +82,20 @@ function App() {
     setStakeAmount(calculatedStake.toFixed(2)); // Round to 2 decimal places
   }, [balance, stakePercentage]);
 
+  // Filter by date range
+  const filterByDateRange = () => {
+    return bets.filter((bet) => {
+      const matchDate = new Date(bet.commence_time * 1000); // Convert timestamp to Date object
+      return matchDate >= startDate && matchDate <= endDate;
+    });
+  };
+
   // Sort bets based on time or odds
-  const sortBets = () => {
-    let sortedBets = [...bets];
+  const sortBets = (filteredBets) => {
+    let sortedBets = [...filteredBets];
 
     if (sortBy === 'time') {
-      sortedBets.sort((a, b) => a.commence_time - b.commence_time); // Sort by time ascending
+      sortedBets.sort((a, b) => new Date(a.commence_time * 1000) - new Date(b.commence_time * 1000)); // Sort by time ascending
     } else if (sortBy === 'odds') {
       sortedBets.sort((a, b) => a.odds - b.odds); // Sort by odds ascending
     }
@@ -94,6 +106,9 @@ function App() {
   useEffect(() => {
     fetchAllOdds();
   }, []);
+
+  const filteredBets = filterByDateRange();
+  const sortedBets = sortBets(filteredBets);
 
   return (
     <div className="App" style={{ padding: '2rem', fontFamily: 'Arial' }}>
@@ -126,20 +141,32 @@ function App() {
       </div>
 
       <div style={{ marginTop: '1rem' }}>
-        {sortBets().length > 0 ? (
-          sortBets().map((bet, idx) => (
+        <h3>📅 Filter Matches By Date:</h3>
+        <div>
+          <label>Start Date: </label>
+          <DatePicker selected={startDate} onChange={date => setStartDate(date)} />
+        </div>
+        <div>
+          <label>End Date: </label>
+          <DatePicker selected={endDate} onChange={date => setEndDate(date)} />
+        </div>
+      </div>
+
+      <div style={{ marginTop: '1rem' }}>
+        {sortedBets.length > 0 ? (
+          sortedBets.map((bet, idx) => (
             <div key={idx} style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem' }}>
               <h2>{bet.matchup}</h2>
               <p><strong>League:</strong> {bet.league}</p>
               <p><strong>Team:</strong> {bet.team}</p>
               <p><strong>Odds:</strong> {bet.odds}</p>
               <p><strong>Bookmaker:</strong> {bet.bookmaker}</p>
-              <p><strong>Kickoff:</strong> {new Date(bet.commence_time).toLocaleString()}</p>
+              <p><strong>Kickoff:</strong> {new Date(bet.commence_time * 1000).toLocaleString()}</p>
               <p><strong>Suggested Stake:</strong> ₦{stakeAmount}</p>
             </div>
           ))
         ) : (
-          <p>No matches found in the safe odds range.</p>
+          <p>No matches found within the selected date range.</p>
         )}
       </div>
     </div>
