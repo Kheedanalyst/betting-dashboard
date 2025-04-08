@@ -33,6 +33,20 @@ body {
   }
 }
 
+/* Dark Mode */
+.App.dark {
+  background-color: #333;
+  color: #fff;
+}
+
+button {
+  background-color: #007bff;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
 /* Headings */
 h1 {
   color: #333;
