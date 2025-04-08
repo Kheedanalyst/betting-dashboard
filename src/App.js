@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import './styles.css'; // Import styles
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 const SPORTS = [
-  'soccer_epl',
+'soccer_epl',
   'soccer_spain_la_liga',
   'soccer_germany_bundesliga',
   'soccer_italy_serie_a',
@@ -96,13 +97,13 @@ function App() {
   }, []);
 
   return (
-    <div className="App" style={{ padding: '2rem', fontFamily: 'Arial' }}>
+    <div className="App">
       <h1>🧠 Smart Odds Betting Dashboard</h1>
       <button onClick={fetchAllOdds} disabled={loading}>
         {loading ? 'Refreshing...' : 'Refresh Matches'}
       </button>
 
-      <div style={{ marginTop: '1rem' }}>
+      <div>
         <h2>💰 Current Balance: ₦{balance}</h2>
         <h3>📊 Stake per Bet: ₦{stakeAmount}</h3>
 
@@ -114,21 +115,20 @@ function App() {
             onChange={(e) => setStakePercentage(e.target.value)}
             min="1"
             max="100"
-            style={{ marginLeft: '1rem' }}
           />
         </label>
       </div>
 
-      <div style={{ marginTop: '1rem' }}>
+      <div>
         <h3>🔄 Sort Matches By:</h3>
         <button onClick={() => setSortBy('time')}>Time</button>
         <button onClick={() => setSortBy('odds')}>Odds</button>
       </div>
 
-      <div style={{ marginTop: '1rem' }}>
+      <div>
         {sortBets().length > 0 ? (
           sortBets().map((bet, idx) => (
-            <div key={idx} style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem' }}>
+            <div key={idx} className="match">
               <h2>{bet.matchup}</h2>
               <p><strong>League:</strong> {bet.league}</p>
               <p><strong>Team:</strong> {bet.team}</p>
@@ -136,6 +136,7 @@ function App() {
               <p><strong>Bookmaker:</strong> {bet.bookmaker}</p>
               <p><strong>Kickoff:</strong> {new Date(bet.commence_time).toLocaleString()}</p>
               <p><strong>Suggested Stake:</strong> ₦{stakeAmount}</p>
+              <button>Place Bet</button>
             </div>
           ))
         ) : (
